@@ -29,6 +29,9 @@ import {
 const isMac = process.platform === "darwin";
 const isWin = process.platform === "win32";
 const preferenceStore = new Store({ name: "preferences" });
+const appFolder = path.dirname(process.execPath)
+const updateExe = path.resolve(appFolder, '..', 'Update.exe')
+const exeName = path.basename(process.execPath)
 
 let appIsQuitting = false;
 
@@ -43,6 +46,15 @@ autoUpdater.on("update-downloaded", () => {
   log.info("DOWNLOADED");
   win.webContents.send("update_downloaded");
 });
+
+app.setLoginItemSettings({
+  openAtLogin: true,
+  path: updateExe,
+  args: [
+    '--processStart', `"${exeName}"`,
+    '--process-start-args', `"--hidden"`
+  ]
+})
 
 const appMenuTemplate: Array<MenuItemConstructorOptions | MenuItem> = isMac
   ? [

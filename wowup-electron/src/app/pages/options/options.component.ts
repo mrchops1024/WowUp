@@ -34,6 +34,7 @@ export class OptionsComponent implements OnInit, OnChanges {
   public collapseToTray = false;
   public telemetryEnabled = false;
   public useHardwareAcceleration = true;
+  public autoLaunch = false;
   public wowClientTypes: WowClientType[] = getEnumList(WowClientType).filter(
     (clientType) => clientType !== WowClientType.None
   ) as WowClientType[];
@@ -129,6 +130,10 @@ export class OptionsComponent implements OnInit, OnChanges {
       this._electronService.restartApplication();
     });
   };
+
+  onAutoLaunchChange(evt: MatSlideToggleChange) {
+    this.autoLaunch = evt.checked;
+  }
 
   onWowUpChannelChange(evt: MatSelectChange) {
     this.wowupService.wowUpReleaseChannel = evt.value;
