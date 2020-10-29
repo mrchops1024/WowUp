@@ -25,8 +25,8 @@
       "UPDATING": "Updating..."
     },
     "DATES": {
-      "DAYS_AGO": "{count} {count, plural, one{day} other{days}} ago",
-      "HOURS_AGO": "{count} {count, plural, one{hour} other{hours}} ago",
+      "DAYS_AGO": "{count} {count, plural, other{days}} ago",
+      "HOURS_AGO": "{count} {count, plural, other{hours}} ago",
       "JUST_NOW": "Just now",
       "YESTERDAY": "Yesterday"
     },

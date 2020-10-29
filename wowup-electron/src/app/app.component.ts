@@ -34,9 +34,9 @@ export class AppComponent implements AfterViewInit {
     private _dialog: MatDialog,
     private _addonService: AddonService,
   ) {
-    this.translate.setDefaultLang("en");
+    this.translate.setDefaultLang("nb");
 
-    this.translate.use(this._electronService.locale);
+    this.translate.use('nb');
   }
 
   ngAfterViewInit(): void {

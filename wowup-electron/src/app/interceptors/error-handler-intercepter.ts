@@ -1,6 +1,6 @@
 import { ErrorHandler } from "@angular/core";
-import { AnalyticsService } from "app/services/analytics/analytics.service";
-import { AppConfig } from "environments/environment";
+import { AnalyticsService } from "../services/analytics/analytics.service";
+import { AppConfig } from "../../environments/environment";
 import * as Rollbar from "rollbar";
 
 export class ErrorHandlerIntercepter implements ErrorHandler {
