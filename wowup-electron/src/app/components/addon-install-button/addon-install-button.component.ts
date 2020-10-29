@@ -21,7 +21,7 @@ import { filter } from "rxjs/operators";
   styleUrls: ["./addon-install-button.component.scss"],
 })
 export class AddonInstallButtonComponent implements OnInit, OnDestroy {
-  @Input() addonSearchResult: AddonSearchResult;
+  @Input() addonSearchResult: AddonSearchResult = {} as AddonSearchResult;
 
   @Output() onViewUpdated: EventEmitter<boolean> = new EventEmitter();
 

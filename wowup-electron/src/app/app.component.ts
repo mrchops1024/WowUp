@@ -10,7 +10,6 @@ import { ElectronService } from "./services";
 import { AddonService } from "./services/addons/addon.service";
 import { AnalyticsService } from "./services/analytics/analytics.service";
 import { FileService } from "./services/files/file.service";
-import { WarcraftService } from "./services/warcraft/warcraft.service";
 import { WowUpService } from "./services/wowup/wowup.service";
 
 const AUTO_UPDATE_PERIOD_MS = 60 * 60 * 1000; // 1 hour
@@ -29,14 +28,13 @@ export class AppComponent implements AfterViewInit {
     private _electronService: ElectronService,
     private _fileService: FileService,
     private translate: TranslateService,
-    private warcraft: WarcraftService,
     private _wowUpService: WowUpService,
     private _dialog: MatDialog,
     private _addonService: AddonService,
   ) {
-    this.translate.setDefaultLang("nb");
+    this.translate.setDefaultLang("en");
 
-    this.translate.use('nb');
+    this.translate.use(this._electronService.locale);
   }
 
   ngAfterViewInit(): void {
