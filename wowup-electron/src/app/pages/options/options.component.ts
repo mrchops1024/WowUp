@@ -1,26 +1,25 @@
 import {
+  ChangeDetectionStrategy,
   Component,
-  OnInit,
+  Input,
   NgZone,
   OnChanges,
+  OnInit,
   SimpleChanges,
-  Input,
-  ChangeDetectionStrategy,
 } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSelectChange } from "@angular/material/select";
 import { MatSlideToggleChange } from "@angular/material/slide-toggle";
+import { TranslateService } from "@ngx-translate/core";
+import { ConfirmDialogComponent } from "../../components/confirm-dialog/confirm-dialog.component";
 import { WowClientType } from "../../models/warcraft/wow-client-type";
+import { WowUpReleaseChannelType } from "../../models/wowup/wowup-release-channel-type";
 import { ElectronService } from "../../services";
+import { AddonService } from "../../services/addons/addon.service";
+import { AnalyticsService } from "../../services/analytics/analytics.service";
 import { WarcraftService } from "../../services/warcraft/warcraft.service";
 import { WowUpService } from "../../services/wowup/wowup.service";
-import * as _ from "lodash";
-import { MatDialog } from "@angular/material/dialog";
 import { getEnumList, getEnumName } from "../../utils/enum.utils";
-import { WowUpReleaseChannelType } from "../../models/wowup/wowup-release-channel-type";
-import { MatSelectChange } from "@angular/material/select";
-import { AnalyticsService } from "../../services/analytics/analytics.service";
-import { AddonService } from "../../services/addons/addon.service";
-import { ConfirmDialogComponent } from "../../components/confirm-dialog/confirm-dialog.component";
-import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "app-options",
@@ -34,6 +33,8 @@ export class OptionsComponent implements OnInit, OnChanges {
   public collapseToTray = false;
   public telemetryEnabled = false;
   public useHardwareAcceleration = true;
+  public startWithSystem = false;
+  public startMinimized = false;
   public wowClientTypes: WowClientType[] = getEnumList(WowClientType).filter(
     (clientType) => clientType !== WowClientType.None
   ) as WowClientType[];
@@ -50,7 +51,7 @@ export class OptionsComponent implements OnInit, OnChanges {
   );
 
   public get minimizeOnCloseDescription() {
-    const key = this._electronService.isWin
+    const key = this.electronService.isWin
       ? "PAGES.OPTIONS.APPLICATION.MINIMIZE_ON_CLOSE_DESCRIPTION_WINDOWS"
       : "PAGES.OPTIONS.APPLICATION.MINIMIZE_ON_CLOSE_DESCRIPTION_MAC";
 
@@ -61,7 +62,6 @@ export class OptionsComponent implements OnInit, OnChanges {
     private _addonService: AddonService,
     private _analyticsService: AnalyticsService,
     private warcraft: WarcraftService,
-    private _electronService: ElectronService,
     public wowupService: WowUpService,
     private _dialog: MatDialog,
     private zone: NgZone,
@@ -126,8 +126,17 @@ export class OptionsComponent implements OnInit, OnChanges {
       }
 
       this.wowupService.useHardwareAcceleration = evt.checked;
-      this._electronService.restartApplication();
+      this.electronService.restartApplication();
     });
+  };
+
+  onStartWithSystemChange = (evt: MatSlideToggleChange) => {
+    this.wowupService.startWithSystem = evt.checked;
+    if (!evt.checked) this.startMinimized = false;
+  };
+
+  onStartMinimizedChange = (evt: MatSlideToggleChange) => {
+    this.wowupService.startMinimized = evt.checked;
   };
 
   onWowUpChannelChange(evt: MatSelectChange) {
@@ -143,6 +152,8 @@ export class OptionsComponent implements OnInit, OnChanges {
       this.telemetryEnabled = this._analyticsService.telemetryEnabled;
       this.collapseToTray = this.wowupService.collapseToTray;
       this.useHardwareAcceleration = this.wowupService.useHardwareAcceleration;
+      this.startWithSystem = this.wowupService.startWithSystem;
+      this.startMinimized = this.wowupService.startMinimized;
     });
   }
 }

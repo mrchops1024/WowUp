@@ -1,3 +1,4 @@
+import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -8,34 +9,32 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { WowClientType } from "../../models/warcraft/wow-client-type";
-import { map } from "rxjs/operators";
-import { from, BehaviorSubject, Subscription } from "rxjs";
-import { Addon } from "../../entities/addon";
-import { WarcraftService } from "../../services/warcraft/warcraft.service";
-import { AddonService } from "../../services/addons/addon.service";
-import { SessionService } from "../../services/session/session.service";
-import { Overlay, OverlayRef } from "@angular/cdk/overlay";
-import { ColumnState } from "../../models/wowup/column-state";
 import { MatCheckboxChange } from "@angular/material/checkbox";
-import { AddonViewModel } from "../../business-objects/my-addon-list-item";
-import * as _ from "lodash";
-import { ElectronService } from "../../services";
-import { AddonDisplayState } from "../../models/wowup/addon-display-state";
-import { AddonInstallState } from "../../models/wowup/addon-install-state";
+import { MatDialog } from "@angular/material/dialog";
 import { MatMenuTrigger } from "@angular/material/menu";
 import { MatRadioChange } from "@angular/material/radio";
-import { MatDialog } from "@angular/material/dialog";
-import { ConfirmDialogComponent } from "../../components/confirm-dialog/confirm-dialog.component";
-import { getEnumName } from "../../utils/enum.utils";
-import { MatTableDataSource } from "@angular/material/table";
 import { MatSort } from "@angular/material/sort";
-import { stringIncludes } from "../../utils/string.utils";
+import { MatTableDataSource } from "@angular/material/table";
+import { TranslateService } from "@ngx-translate/core";
+import * as _ from "lodash";
+import { BehaviorSubject, from, Subscription } from "rxjs";
+import { map } from "rxjs/operators";
+import { AddonViewModel } from "../../business-objects/my-addon-list-item";
 import {
   AddonDetailComponent,
   AddonDetailModel,
 } from "../../components/addon-detail/addon-detail.component";
-import { TranslateService } from "@ngx-translate/core";
+import { ConfirmDialogComponent } from "../../components/confirm-dialog/confirm-dialog.component";
+import { Addon } from "../../entities/addon";
+import { WowClientType } from "../../models/warcraft/wow-client-type";
+import { AddonInstallState } from "../../models/wowup/addon-install-state";
+import { ColumnState } from "../../models/wowup/column-state";
+import { ElectronService } from "../../services";
+import { AddonService } from "../../services/addons/addon.service";
+import { SessionService } from "../../services/session/session.service";
+import { WarcraftService } from "../../services/warcraft/warcraft.service";
+import { getEnumName } from "../../utils/enum.utils";
+import { stringIncludes } from "../../utils/string.utils";
 
 @Component({
   selector: "app-my-addons",
@@ -59,20 +58,21 @@ export class MyAddonsComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
   private isSelectedTab: boolean = false;
-  private sortedListItems: AddonViewModel[] = [];
+
+  public sortedListItems: AddonViewModel[] = [];
 
   public spinnerMessage = "";
 
-  contextMenuPosition = { x: "0px", y: "0px" };
+  public contextMenuPosition = { x: "0px", y: "0px" };
 
   public dataSource = new MatTableDataSource<AddonViewModel>([]);
   public filter = "";
 
   columns: ColumnState[] = [
     { name: "addon.name", display: "Addon", visible: true },
-    { name: "displayState", display: "Status", visible: true },
+    { name: "sortOrder", display: "Status", visible: true },
     {
-      name: "addon.installedAt",
+      name: "installedAt",
       display: "Updated At",
       visible: true,
       allowToggle: true,
@@ -192,6 +192,7 @@ export class MyAddonsComponent implements OnInit, OnDestroy {
     const dataSourceSortSubscription = this.dataSource
       .connect()
       .subscribe((sortedListItems) => {
+        console.debug("sortedListItems", sortedListItems);
         this.sortedListItems = sortedListItems;
         this.setPageContextText();
       });
@@ -303,9 +304,7 @@ export class MyAddonsComponent implements OnInit, OnDestroy {
     try {
       const listItems = _.filter(
         this._displayAddonsSrc.value,
-        (listItem) =>
-          listItem.displayState === AddonDisplayState.Install ||
-          listItem.displayState === AddonDisplayState.Update
+        (listItem) => listItem.needsInstall || listItem.needsUpdate
       );
 
       await Promise.all(
@@ -650,9 +649,9 @@ export class MyAddonsComponent implements OnInit, OnDestroy {
       next: (addons) => {
         this.isBusy = false;
         this.enableControls = true;
-          this._displayAddonsSrc.next(this.formatAddons(addons));
-          this.setPageContextText();
-          this._cdRef.detectChanges();
+        this._displayAddonsSrc.next(this.formatAddons(addons));
+        this.setPageContextText();
+        this._cdRef.detectChanges();
       },
       error: (err) => {
         console.error(err);
@@ -670,7 +669,7 @@ export class MyAddonsComponent implements OnInit, OnDestroy {
 
   private sortListItems(listItems: AddonViewModel[], sort?: MatSort) {
     if (!sort || !sort.active || sort.direction === "") {
-      return _.orderBy(listItems, ["displayState", "addon.name"]);
+      return _.orderBy(listItems, ["sortOrder", "addon.name"]);
     }
     return _.orderBy(
       listItems,

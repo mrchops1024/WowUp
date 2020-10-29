@@ -6,11 +6,12 @@ import {
 } from "@angular/core";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { TranslateService } from "@ngx-translate/core";
+import { UpdateCheckResult } from "electron-updater";
+import { forkJoin } from "rxjs";
 import { ElectronService } from "../../services";
 import { SessionService } from "../../services/session/session.service";
 import { WarcraftService } from "../../services/warcraft/warcraft.service";
 import { WowUpService } from "../../services/wowup/wowup.service";
-import { forkJoin } from "rxjs";
 
 @Component({
   selector: "app-home",
@@ -41,10 +42,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this._wowupService.wowupUpdateCheck$.subscribe(this.showUpdateSnackbar);
+  }
 
   ngAfterViewInit(): void {
-    this.checkForAppUpdate();
+    // check for an app update every hour
+    window.setInterval(() => {
+      this.checkForAppUpdate();
+    }, 60 * 60 * 1000);
   }
 
   onSelectedIndexChange(index: number) {
@@ -52,27 +58,27 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   private async checkForAppUpdate() {
+    try {
+      const appUpdateResponse = await this._wowupService.checkForAppUpdate();
+      console.log(appUpdateResponse);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private showUpdateSnackbar = async (updateCheckResult: UpdateCheckResult) => {
     // Have to wait for the localize service to start
     const [sbtext, sbaction] = await forkJoin([
       this._translateService.get("APP.WOWUP_UPDATE_SNACKBAR_TEXT"),
       this._translateService.get("APP.WOWUP_UPDATE_SNACKBAR_ACTION"),
     ]).toPromise();
 
-    try {
-      const appUpdateResponse = await this._wowupService.checkForAppUpdate();
-      console.log(appUpdateResponse);
+    const snackBarRef = this._snackBar.open(sbtext, sbaction, {
+      duration: 2000,
+    });
 
-      const snackBarRef = this._snackBar.open(sbtext, sbaction, {
-        duration: 2000,
-      });
-
-      snackBarRef.onAction().subscribe(() => {
-        console.log("The snack-bar action was triggered!");
-      });
-
-      this._sessionService.wowupUpdateData = appUpdateResponse;
-    } catch (e) {
-      console.error(e);
-    }
-  }
+    snackBarRef.onAction().subscribe(() => {
+      console.log("The snack-bar action was triggered!");
+    });
+  };
 }

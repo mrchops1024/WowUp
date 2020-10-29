@@ -30,7 +30,7 @@ export class AppComponent implements AfterViewInit {
     private translate: TranslateService,
     private _wowUpService: WowUpService,
     private _dialog: MatDialog,
-    private _addonService: AddonService,
+    private _addonService: AddonService
   ) {
     this.translate.setDefaultLang("en");
 
@@ -80,7 +80,9 @@ export class AppComponent implements AfterViewInit {
       this._electronService.showNotification(
         this.translate.instant("APP.AUTO_UPDATE_NOTIFICATION_TITLE"),
         {
-          body: this.translate.instant("APP.AUTO_UPDATE_NOTIFICATION_BODY", {count: updateCount}),
+          body: this.translate.instant("APP.AUTO_UPDATE_NOTIFICATION_BODY", {
+            count: updateCount,
+          }),
           icon: iconPath,
         }
       );

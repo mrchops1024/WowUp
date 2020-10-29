@@ -1,3 +1,3 @@
 export class MockTranslateService {
-	public instant() { }
+  public instant() {}
 }

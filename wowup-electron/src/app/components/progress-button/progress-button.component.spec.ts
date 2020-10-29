@@ -1,16 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ProgressButtonComponent } from "./progress-button.component";
 
-import { ProgressButtonComponent } from './progress-button.component';
-
-describe('ProgressButtonComponent', () => {
+describe("ProgressButtonComponent", () => {
   let component: ProgressButtonComponent;
   let fixture: ComponentFixture<ProgressButtonComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ProgressButtonComponent ]
-    })
-    .compileComponents();
+      declarations: [ProgressButtonComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -19,7 +17,7 @@ describe('ProgressButtonComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

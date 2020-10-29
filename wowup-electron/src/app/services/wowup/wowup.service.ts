@@ -1,59 +1,71 @@
 import { Injectable } from "@angular/core";
 import { remote } from "electron";
-import { join } from "path";
-import { existsSync } from "fs";
-import { Subject } from "rxjs";
 import { UpdateCheckResult } from "electron-updater";
-import { CachingService } from "../caching/caching-service";
-import { PreferenceStorageService } from "../storage/preference-storage.service";
-import { WowUpReleaseChannelType } from "../../models/wowup/wowup-release-channel-type";
-import { getEnumList, getEnumName } from "../../utils/enum.utils";
-import { WowClientType } from "../../models/warcraft/wow-client-type";
-import { AddonChannelType } from "../../models/wowup/addon-channel-type";
-import { ElectronService } from "../electron/electron.service";
-import { WowUpApiService } from "../wowup-api/wowup-api.service";
-import { DownloadSevice } from "../download/download.service";
-import { PreferenceChange } from "../../models/wowup/preference-change";
-import { FileService } from "../files/file.service";
+import { existsSync } from "fs";
+import { join } from "path";
+import { Subject } from "rxjs";
 import {
+  APP_UPDATE_CHECK_FOR_UPDATE,
+  APP_UPDATE_INSTALL,
+  APP_UPDATE_START_DOWNLOAD,
   COLLAPSE_TO_TRAY_PREFERENCE_KEY,
   DEFAULT_AUTO_UPDATE_PREFERENCE_KEY_SUFFIX,
   DEFAULT_CHANNEL_PREFERENCE_KEY_SUFFIX,
   ENABLE_SYSTEM_NOTIFICATIONS_PREFERENCE_KEY,
   LAST_SELECTED_WOW_CLIENT_TYPE_PREFERENCE_KEY,
-  WOWUP_RELEASE_CHANNEL_PREFERENCE_KEY,
+  START_MINIMIZED_PREFERENCE_KEY,
+  START_WITH_SYSTEM_PREFERENCE_KEY,
   USE_HARDWARE_ACCELERATION_PREFERENCE_KEY,
-  APP_UPDATE_CHECK_FOR_UPDATE,
-  APP_UPDATE_START_DOWNLOAD,
-  APP_UPDATE_INSTALL,
+  WOWUP_RELEASE_CHANNEL_PREFERENCE_KEY,
 } from "../../../common/constants";
+import { WowClientType } from "../../models/warcraft/wow-client-type";
+import { AddonChannelType } from "../../models/wowup/addon-channel-type";
+import { PreferenceChange } from "../../models/wowup/preference-change";
+import { WowUpReleaseChannelType } from "../../models/wowup/wowup-release-channel-type";
+import { getEnumList, getEnumName } from "../../utils/enum.utils";
+import { CachingService } from "../caching/caching-service";
+import { DownloadSevice } from "../download/download.service";
+import { ElectronService } from "../electron/electron.service";
+import { FileService } from "../files/file.service";
+import { PreferenceStorageService } from "../storage/preference-storage.service";
+import { WowUpApiService } from "../wowup-api/wowup-api.service";
 
 const LATEST_VERSION_CACHE_KEY = "latest-version-response";
+var autoLaunch = require("auto-launch");
 
 @Injectable({
   providedIn: "root",
 })
 export class WowUpService {
   private readonly _preferenceChangeSrc = new Subject<PreferenceChange>();
+  private readonly _wowupUpdateDownloadedSrc = new Subject<any>();
+  private readonly _wowupUpdateCheckSrc = new Subject<UpdateCheckResult>();
 
   public readonly updaterName = "WowUpUpdater.exe";
+
   public readonly applicationFolderPath: string = remote.app.getPath(
     "userData"
   );
+
   public readonly applicationLogsFolderPath: string = remote.app.getPath(
     "logs"
   );
+
   public readonly applicationDownloadsFolderPath: string = join(
     this.applicationFolderPath,
     "downloads"
   );
+
   public readonly applicationUpdaterPath: string = join(
     this.applicationFolderPath,
     this.updaterName
   );
+
   public readonly applicationVersion: string;
   public readonly isBetaBuild: boolean;
   public readonly preferenceChange$ = this._preferenceChangeSrc.asObservable();
+  public readonly wowupUpdateDownloaded$ = this._wowupUpdateDownloadedSrc.asObservable();
+  public readonly wowupUpdateCheck$ = this._wowupUpdateCheckSrc.asObservable();
 
   constructor(
     private _preferenceStorageService: PreferenceStorageService,
@@ -100,6 +112,36 @@ export class WowUpService {
     const key = USE_HARDWARE_ACCELERATION_PREFERENCE_KEY;
     this._preferenceStorageService.set(key, value);
     this._preferenceChangeSrc.next({ key, value: value.toString() });
+  }
+
+  public get startWithSystem() {
+    const preference = this._preferenceStorageService.findByKey(
+      START_WITH_SYSTEM_PREFERENCE_KEY
+    );
+    return preference === "true";
+  }
+
+  public set startWithSystem(value: boolean) {
+    const key = START_WITH_SYSTEM_PREFERENCE_KEY;
+    this._preferenceStorageService.set(key, value);
+    this._preferenceChangeSrc.next({ key, value: value.toString() });
+
+    this.setAutoStartup();
+  }
+
+  public get startMinimized() {
+    const preference = this._preferenceStorageService.findByKey(
+      START_MINIMIZED_PREFERENCE_KEY
+    );
+    return preference === "true";
+  }
+
+  public set startMinimized(value: boolean) {
+    const key = START_MINIMIZED_PREFERENCE_KEY;
+    this._preferenceStorageService.set(key, value);
+    this._preferenceChangeSrc.next({ key, value: value.toString() });
+
+    this.setAutoStartup();
   }
 
   public get wowUpReleaseChannel() {
@@ -182,11 +224,28 @@ export class WowUpService {
   }
 
   public async checkForAppUpdate(): Promise<UpdateCheckResult> {
-    return await this._electronService.invoke(APP_UPDATE_CHECK_FOR_UPDATE);
+    const updateCheckResult: UpdateCheckResult = await this._electronService.invoke(
+      APP_UPDATE_CHECK_FOR_UPDATE
+    );
+
+    // only notify things when the version changes
+    if (
+      updateCheckResult.updateInfo.version !==
+      this._electronService.getVersionNumber()
+    ) {
+      this._wowupUpdateCheckSrc.next(updateCheckResult);
+    }
+
+    return updateCheckResult;
   }
 
   public async downloadUpdate() {
-    return await this._electronService.invoke(APP_UPDATE_START_DOWNLOAD);
+    const downloadResult = await this._electronService.invoke(
+      APP_UPDATE_START_DOWNLOAD
+    );
+
+    this._wowupUpdateDownloadedSrc.next(downloadResult);
+    return downloadResult;
   }
 
   public async installUpdate() {
@@ -259,5 +318,27 @@ export class WowUpService {
     await this._fileService.createDirectory(
       this.applicationDownloadsFolderPath
     );
+  }
+
+  private setAutoStartup() {
+    if (this._electronService.isLinux) {
+      var autoLauncher = new autoLaunch({
+        name: "WowUp",
+        isHidden: this.startMinimized,
+      });
+
+      if (this.startWithSystem) autoLauncher.enable();
+      else autoLauncher.disable();
+    } else {
+      this._electronService.remote.app.setLoginItemSettings({
+        openAtLogin: this.startWithSystem,
+        openAsHidden: this._electronService.isMac ? this.startMinimized : false,
+        args: this._electronService.isWin
+          ? this.startMinimized
+            ? ["--hidden"]
+            : []
+          : [],
+      });
+    }
   }
 }

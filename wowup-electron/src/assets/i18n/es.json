@@ -2,6 +2,9 @@
   "APP": {
     "AUTO_UPDATE_NOTIFICATION_BODY": "Automatically updated {count} {count, plural, =1{addon} other{addons}}.",
     "AUTO_UPDATE_NOTIFICATION_TITLE": "Auto Updates",
+    "WOWUP_UPDATE_DOWNLOADED_TOOLTIP": "Install WowUp update",
+    "WOWUP_UPDATE_INSTALL_MESSAGE": "Do you want restart WowUp to install the update?",
+    "WOWUP_UPDATE_INSTALL_TITLE": "WowUp Update Ready",
     "WOWUP_UPDATE_SNACKBAR_ACTION": "Update",
     "WOWUP_UPDATE_SNACKBAR_TEXT": "A new version of WowUp is available",
     "WOWUP_UPDATE_TOOLTIP": "WowUp update available"
@@ -25,6 +28,7 @@
       "UPDATING": "UPDATING"
     },
     "DATES": {
+      "DATETIME_SHORT": "{d, date, short} {d, time, short}",
       "DAYS_AGO": "{count} {count, plural, one{day} other{days}} ago",
       "HOURS_AGO": "{count} {count, plural, one{hour} other{hours}} ago",
       "JUST_NOW": "Just now",
@@ -161,6 +165,10 @@
         "MINIMIZE_ON_CLOSE_DESCRIPTION_MAC": "MINIMIZE_ON_CLOSE_DESCRIPTION_MAC",
         "MINIMIZE_ON_CLOSE_DESCRIPTION_WINDOWS": "Al cerrar la ventana de WowUp, minimízala a la bandeja del sistema.",
         "MINIMIZE_ON_CLOSE_LABEL": "Minimizar al Cerrar",
+        "START_MINIMIZED_DESCRIPTION": "...and will not show up on the screen",
+        "START_MINIMIZED_LABEL": "Launch WowUp minimized",
+        "START_WITH_SYSTEM_DESCRIPTION": "WowUp will be launched immediately after your operational system is loaded...",
+        "START_WITH_SYSTEM_LABEL": "Launch WowUp with system",
         "TELEMETRY_DESCRIPTION": "Ayude a mejorar WowUp enviando datos y / o errores de instalación de forma anónima.",
         "TELEMETRY_LABEL": "Telemetría",
         "TITLE": "Aplicación",

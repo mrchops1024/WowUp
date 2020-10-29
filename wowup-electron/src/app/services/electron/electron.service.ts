@@ -1,16 +1,15 @@
 import { Injectable } from "@angular/core";
-import { v4 as uuidv4 } from "uuid";
-
+import * as childProcess from "child_process";
 // If you import a module but never use any of the imported values other than as TypeScript types,
 // the resulting javascript file will look as if you never imported the module at all.
-import { ipcRenderer, webFrame, remote, shell } from "electron";
-import * as childProcess from "child_process";
+import { ipcRenderer, remote, shell, webFrame } from "electron";
 import * as fs from "fs";
 import { BehaviorSubject } from "rxjs";
-import { ValueResponse } from "../../../common/models/value-response";
-import { ValueRequest } from "../../../common/models/value-request";
+import { v4 as uuidv4 } from "uuid";
 import { IpcRequest } from "../../../common/models/ipc-request";
 import { IpcResponse } from "../../../common/models/ipc-response";
+import { ValueRequest } from "../../../common/models/value-request";
+import { ValueResponse } from "../../../common/models/value-response";
 
 @Injectable({
   providedIn: "root",
@@ -46,7 +45,7 @@ export class ElectronService {
       return;
     }
 
-    console.log('Platform', process.platform, this.isLinux)
+    console.log("Platform", process.platform, this.isLinux);
 
     this.ipcRenderer = window.require("electron").ipcRenderer;
     this.webFrame = window.require("electron").webFrame;
@@ -56,27 +55,27 @@ export class ElectronService {
     this.childProcess = window.require("child_process");
     this.fs = window.require("fs");
 
-    const currentWindow = this.remote.getCurrentWindow();
+    const currentWindow = this.remote?.getCurrentWindow();
 
-    currentWindow.on("minimize", () => {
+    currentWindow?.on("minimize", () => {
       this._windowMinimizedSrc.next(true);
     });
 
-    currentWindow.on("restore", () => {
+    currentWindow?.on("restore", () => {
       this._windowMinimizedSrc.next(false);
     });
 
-    currentWindow.on("maximize", () => {
+    currentWindow?.on("maximize", () => {
       this._windowMaximizedSrc.next(true);
     });
 
-    currentWindow.on("unmaximize", () => {
+    currentWindow?.on("unmaximize", () => {
       this._windowMaximizedSrc.next(false);
     });
 
-    this._windowMaximizedSrc.next(currentWindow.isMaximized());
+    this._windowMaximizedSrc.next(currentWindow?.isMaximized() || false);
 
-    currentWindow.webContents
+    currentWindow?.webContents
       .setVisualZoomLevelLimits(1, 3)
       .then(() =>
         console.log("Zoom levels have been set between 100% and 300%")
@@ -116,6 +115,10 @@ export class ElectronService {
         currentWindow.webContents.zoomFactor = currentZoom - 0.2;
       }
     });
+  }
+
+  public getVersionNumber() {
+    return this.remote.app.getVersion();
   }
 
   minimizeWindow() {

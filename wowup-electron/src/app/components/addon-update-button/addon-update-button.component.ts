@@ -7,14 +7,14 @@ import {
   Output,
 } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
+import { filter } from "rxjs/operators";
 import { AddonViewModel } from "../../business-objects/my-addon-list-item";
 import { WowClientType } from "../../models/warcraft/wow-client-type";
 import { AddonInstallState } from "../../models/wowup/addon-install-state";
 import { AddonService } from "../../services/addons/addon.service";
 import { AnalyticsService } from "../../services/analytics/analytics.service";
 import { getEnumName } from "../../utils/enum.utils";
-import { Subscription } from "rxjs";
-import { filter } from "rxjs/operators";
 
 @Component({
   selector: "app-addon-update-button",
@@ -51,31 +51,31 @@ export class AddonUpdateButtonComponent implements OnInit, OnDestroy {
     this._subscriptions = [];
   }
 
-  public get actionLabel() {
+  public getActionLabel() {
     return `${getEnumName(WowClientType, this.listItem?.addon?.clientType)}|${
       this.listItem?.addon.providerName
     }|${this.listItem?.addon.externalId}|${this.listItem?.addon.name}`;
   }
 
-  public get installProgress() {
+  public getInstallProgress() {
     return this.listItem?.installProgress || 0;
   }
 
-  public get isButtonActive() {
+  public getIsButtonActive() {
     return (
       this.listItem?.installState !== AddonInstallState.Unknown &&
       this.listItem?.installState !== AddonInstallState.Complete
     );
   }
 
-  public get isButtonDisabled() {
+  public getIsButtonDisabled() {
     return (
       this.listItem?.isUpToDate ||
       this.listItem?.installState < AddonInstallState.Unknown
     );
   }
 
-  public get buttonText() {
+  public getButtonText() {
     if (this.listItem?.installState !== AddonInstallState.Unknown) {
       return this.getInstallStateText(this.listItem?.installState);
     }
@@ -87,22 +87,11 @@ export class AddonUpdateButtonComponent implements OnInit, OnDestroy {
     this._analyticsService.trackUserAction(
       "addons",
       "update_addon",
-      this.actionLabel
+      this.getActionLabel()
     );
 
-    this._addonService.installAddon(
-      this.listItem.addon.id
-      // this.onInstallUpdate
-    );
+    this._addonService.installAddon(this.listItem.addon.id);
   }
-
-  private onInstallUpdate = (
-    installState: AddonInstallState,
-    progress: number
-  ) => {
-    this.listItem.installState = installState;
-    this.listItem.installProgress = progress;
-  };
 
   public getStatusText() {
     if (this.listItem?.needsInstall) {
@@ -121,7 +110,9 @@ export class AddonUpdateButtonComponent implements OnInit, OnDestroy {
       return "";
     }
 
-    return this._translateService.instant(this.listItem.stateTextTranslationKey);
+    return this._translateService.instant(
+      this.listItem.stateTextTranslationKey
+    );
   }
 
   private getInstallStateText(installState: AddonInstallState) {

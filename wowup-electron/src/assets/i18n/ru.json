@@ -2,9 +2,12 @@
   "APP": {
     "AUTO_UPDATE_NOTIFICATION_BODY": "Автоматически {count, plural, one{обновлена} other{обновлено}} {count} {count, plural, one{модификация} few{модификации} other{модификаций}}.",
     "AUTO_UPDATE_NOTIFICATION_TITLE": "Автоматические обновления",
-    "WOWUP_UPDATE_SNACKBAR_ACTION": "Update",
-    "WOWUP_UPDATE_SNACKBAR_TEXT": "A new version of WowUp is available",
-    "WOWUP_UPDATE_TOOLTIP": "WowUp update available"
+    "WOWUP_UPDATE_DOWNLOADED_TOOLTIP": "Установить обновление WowUp",
+    "WOWUP_UPDATE_INSTALL_MESSAGE": "Вы хотите перезапустить WowUp чтобы установить обновление?",
+    "WOWUP_UPDATE_INSTALL_TITLE": "Для WowUp готово обновление",
+    "WOWUP_UPDATE_SNACKBAR_ACTION": "Обновить",
+    "WOWUP_UPDATE_SNACKBAR_TEXT": "Доступна новая версия WowUp",
+    "WOWUP_UPDATE_TOOLTIP": "Доступно обновление для WowUp"
   },
   "COMMON": {
     "ADDON_STATE": {
@@ -25,6 +28,7 @@
       "UPDATING": "Обновляется..."
     },
     "DATES": {
+      "DATETIME_SHORT": "{d, date, short} {d, time, short}",
       "DAYS_AGO": "{count} {count, plural, one{день} few{дня} other{дней}} назад",
       "HOURS_AGO": "{count} {count, plural, one{час} few{часа} other{часов}} назад",
       "JUST_NOW": "Только что",
@@ -161,6 +165,10 @@
         "MINIMIZE_ON_CLOSE_DESCRIPTION_MAC": "При закрытии окна WowUp сворачивается в меню статуса.",
         "MINIMIZE_ON_CLOSE_DESCRIPTION_WINDOWS": "При закрытии окна WowUp сворачивается в область уведомлений панели задач.",
         "MINIMIZE_ON_CLOSE_LABEL": "Свернуть в трей при закрытии",
+        "START_MINIMIZED_DESCRIPTION": "...и не будет показан на экране",
+        "START_MINIMIZED_LABEL": "Запускать WowUp свернутым",
+        "START_WITH_SYSTEM_DESCRIPTION": "WowUp будет запущен сразу после загрузки операционной системы...",
+        "START_WITH_SYSTEM_LABEL": "Запускать WowUp вместе со стартом системы",
         "TELEMETRY_DESCRIPTION": "Помогите улучшить WowUp, отправив анонимные данные об установке и/или ошибках.",
         "TELEMETRY_LABEL": "Телеметрия",
         "TITLE": "Приложение",

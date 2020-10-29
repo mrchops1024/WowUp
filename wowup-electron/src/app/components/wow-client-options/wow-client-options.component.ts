@@ -6,18 +6,18 @@ import {
   OnInit,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { WowClientType } from "../../models/warcraft/wow-client-type";
-import { ElectronService } from "../../services";
-import { WarcraftService } from "../../services/warcraft/warcraft.service";
-import { getEnumList, getEnumName } from "../../utils/enum.utils";
-import * as path from "path";
-import * as _ from "lodash";
-import { AlertDialogComponent } from "../alert-dialog/alert-dialog.component";
-import { AddonChannelType } from "../../models/wowup/addon-channel-type";
-import { WowUpService } from "../../services/wowup/wowup.service";
 import { MatSelectChange } from "@angular/material/select";
 import { MatSlideToggleChange } from "@angular/material/slide-toggle";
+import * as _ from "lodash";
+import * as path from "path";
 import { Subscription } from "rxjs";
+import { WowClientType } from "../../models/warcraft/wow-client-type";
+import { AddonChannelType } from "../../models/wowup/addon-channel-type";
+import { ElectronService } from "../../services";
+import { WarcraftService } from "../../services/warcraft/warcraft.service";
+import { WowUpService } from "../../services/wowup/wowup.service";
+import { getEnumList, getEnumName } from "../../utils/enum.utils";
+import { AlertDialogComponent } from "../alert-dialog/alert-dialog.component";
 
 @Component({
   selector: "app-wow-client-options",

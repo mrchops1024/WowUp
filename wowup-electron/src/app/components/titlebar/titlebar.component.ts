@@ -1,9 +1,9 @@
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { ElectronService } from "../../services/electron/electron.service";
-import { WowUpService } from "../../services/wowup/wowup.service";
-import { AppConfig } from "../../../environments/environment";
 import { platform } from "os";
 import { Subscription } from "rxjs";
+import { AppConfig } from "../../../environments/environment";
+import { ElectronService } from "../../services/electron/electron.service";
+import { WowUpService } from "../../services/wowup/wowup.service";
 
 @Component({
   selector: "app-titlebar",
@@ -57,14 +57,17 @@ export class TitlebarComponent implements OnInit, OnDestroy {
     const win = this.electronService.remote.getCurrentWindow();
 
     if (this.isMac) {
-      const action = this.electronService.remote.systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
-      if (action === 'Maximize') {
+      const action = this.electronService.remote.systemPreferences.getUserDefault(
+        "AppleActionOnDoubleClick",
+        "string"
+      );
+      if (action === "Maximize") {
         if (win.isMaximized()) {
           win.unmaximize();
         } else {
           win.maximize();
         }
-      } else if (action === 'Minimize') {
+      } else if (action === "Minimize") {
         win.minimize();
       }
     }

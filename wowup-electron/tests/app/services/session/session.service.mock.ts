@@ -1,3 +1,1 @@
-export class MockSessionService {
-
-}
+export class MockSessionService {}
